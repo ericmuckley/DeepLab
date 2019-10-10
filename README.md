@@ -1,9 +1,9 @@
 # DeepLab
 
-This is a web application for strealined acquisition and analysis of data from 
-scientific instuments. 
+This is a web application for streamlinng the management and analysis of
+scientific samples.  
 
-### THIS SOFRWARE IS CURRENTLY IN ACTIVE DEVELOPMENT
+### THIS SOFTWARE IS CURRENTLY IN ACTIVE DEVELOPMENT
 
 
 # Building the project 
@@ -45,7 +45,7 @@ To send to a Github repository, run
 ## Push future updates to Github
 
 For future pushes to Github, run  
-```git add -A```
+```git add -A```  
 ```git commit -am "commit message"```  
 ```git push origin master```  
 
