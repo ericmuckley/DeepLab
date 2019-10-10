@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <h1> {{title}} </h1>
+
+<p>Deeplab is a web application meant for streamlining
+the tracking and analysis of scientific samples.</p>
+
+<h3>Quickstart - Analyze</h3>
+<p>To analyze data stored in a <i>.csv</i> file, first 
+<a href="{{ url_for('index') }}">upload</a> your data.</p>
+
+
+{% endblock %}
