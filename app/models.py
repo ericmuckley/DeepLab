@@ -13,6 +13,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     samples = db.relationship('Sample', backref='author', lazy='dynamic')
+    about_me = db.Column(db.String(140))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -33,7 +35,7 @@ class Sample(db.Model):
     fab_date = db.Column(db.String(10), default='', index=True)
     notes = db.Column(db.String(200), default='')
     experiments = db.Column(db.PickleType(), default={}, index=True)
-
+    ispublic = db.Column(db.Boolean(), default=True, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     def __repr__(self):
         return '<Sample '+self.name+'>'

@@ -2,12 +2,27 @@ from app import app
 from app import db
 from flask import render_template, flash, redirect, request, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
+
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User
+from app.models import User, Sample
 from werkzeug.urls import url_parse
 
+
+from datetime import datetime
+
+@app.before_request
+def before_request():
+    # get "last seen" time for a user when they sign in
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')
 
 
 class RegistrationForm(FlaskForm):
@@ -37,6 +52,22 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile',
+                           form=form)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -51,6 +82,33 @@ def register():
         flash('Congratulations, you are now registered.')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+
+
+
+@app.route('/user/<username>')
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    return render_template('user.html', user=user, title=user.username)
+
+
+
+
+
+
+@app.route('/users')
+def users():
+    userlist = User.query.all()
+    return render_template('users.html', title='Users', userlist=userlist)
+
+@app.route('/samples')
+def samples():
+	samples = Sample.query.all()
+	return render_template('samples.html', title='Samples', samples=samples)
+
+
+
+
 
 
 
@@ -83,17 +141,7 @@ def login():
 def index():
 	return render_template('index.html', title='Welcome to Deeplab')
 
-@app.route('/mysamples')
-def mysamples():
-	samples = ['a', 'b', 'c', 'd']
-	return render_template('mysamples.html', title='My samples',
-		samples=samples)
 
-@app.route('/allsamples')
-def allsamples():
-	samples = ['a', 'b', 'c', 'd']
-	return render_template('allsamples.html', title='All samples',
-		samples=samples)
 
 
 @app.route('/addsample')

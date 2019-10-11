@@ -1,6 +1,6 @@
 # DeepLab
 
-This is a web application for streamlinng the management and analysis of
+This is a web application for management and analysis of
 scientific samples.  
 
 ### THIS SOFTWARE IS CURRENTLY IN ACTIVE DEVELOPMENT
@@ -11,15 +11,15 @@ scientific samples.
 ## Initialize the project
 
 To create a new virtual environment for the project files called _env_ , run  
-```python3 -m venv env```  
+```python3 -m venv venv```  
 
 To activate the virtual environment named _env_, navigate to project folder (```cd deeplab```) and run  
-```source env/bin/activate```  
+```source venv/bin/activate```  
 
 To deactivate, run  
 ```deactivate```  
 
-To install Django, inside the environment run  
+To install Flask, inside the environment run  
 ```pip install flask```  
 
 
@@ -27,7 +27,17 @@ To install Django, inside the environment run
 
 # Database management
 
-## Creation of data tables and models
+To connect to an SQL database from the Flask app, install _flask-sqlalchemy_  
+For database migrations, install _flask-migrate_  
+To create a database for the first time, delete the _migrations_ folder, 
+delete all _pycache_ folders, and run  
+```flask db init```  
+To migrate changes you made to the database models, run  
+```flask db migrate```  
+To apply the database changes, run  
+```flask db upgrade```
+
+
 
 
 # Using Git for version control
