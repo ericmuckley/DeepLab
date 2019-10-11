@@ -19,10 +19,40 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+
+class SampleForm(FlaskForm):
+    # form for creating new samples
+    name = TextAreaField('Sample name (required)',
+            validators=[DataRequired(), Length(min=1, max=140)])
+    composition = TextAreaField('Composition',
+            validators=[Length(min=0, max=140)])
+    fab_method = TextAreaField('Fabrication method',
+            validators=[Length(min=0, max=140)])
+    fab_date = TextAreaField('Fabrication date (YYYY-MM-DD) (required)',
+            validators=[DataRequired(), Length(min=0, max=10)])
+    notes = TextAreaField('Notes',
+            validators=[Length(min=0, max=140)])
+    experiments = TextAreaField('Experiments',
+            validators=[Length(min=0, max=140)])
+    ispublic = BooleanField('Visible to public')
+
+    submit = SubmitField('Submit')
+
+
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
     submit = SubmitField('Submit')
+
+    def __init__(self, original_username, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        self.original_username = original_username
+
+    def validate_username(self, username):
+        if username.data != self.original_username:
+            user = User.query.filter_by(username=self.username.data).first()
+            if user is not None:
+                raise ValidationError('Please use a different username.')
 
 
 class RegistrationForm(FlaskForm):
@@ -55,7 +85,7 @@ class LoginForm(FlaskForm):
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    form = EditProfileForm()
+    form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
@@ -69,27 +99,17 @@ def edit_profile():
                            form=form)
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Congratulations, you are now registered.')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
-
+@app.route('/upload')
+def upload():
+    return render_template('upload.html', title='Upload CSV file')
 
 
 
 @app.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user, title=user.username)
+    samples = user.samples
+    return render_template('user.html', user=user, title=user.username, samples=samples)
 
 
 
@@ -107,15 +127,32 @@ def samples():
 	return render_template('samples.html', title='Samples', samples=samples)
 
 
+@app.route('/sample/<name>')
+def sample(name):
+    sample = Sample.query.filter_by(name=name).first_or_404()
+    return render_template('sample.html', sample=sample, title=sample.name)
 
 
-
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now registered.')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -144,9 +181,23 @@ def index():
 
 
 
-@app.route('/addsample')
+@app.route('/addsample', methods=['GET', 'POST'])
 @login_required
 def addsample():
-    return render_template('addsample.html', title='Add new sample')
-
+    form = SampleForm()
+    if form.validate_on_submit():
+        sample = Sample(name=form.name.data,
+                        composition=form.composition.data,
+                        fab_method=form.fab_method.data,
+                        fab_date=form.fab_date.data,
+                        notes=form.notes.data,
+                        experiments=form.experiments.data,
+                        ispublic=form.ispublic.data,
+                        author=current_user)
+        db.session.add(sample)
+        db.session.commit()
+        flash('Your sample has been created.')
+        return redirect(url_for('samples'))
+    samples = Sample.query.all()
+    return render_template("addsample.html", title='Home Page', form=form, samples=samples)
 

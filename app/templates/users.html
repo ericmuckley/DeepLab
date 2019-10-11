@@ -5,10 +5,21 @@
 
 <p>Showing {{ userlist|length }} users sorted alphabetically.</p/>
 
-{% if userlist|length > 0 %}
 
+
+{% if userlist|length > 0 %}
 {% for user in userlist %}
-<p>{{ user.username }}</p>
+
+<hr>
+<table>
+<tr>
+<td width="350px">
+<a href="{{ url_for('user', username=user.username) }}">
+<b>{{ user.username }}</b></a>: last seen on {{ user.last_seen }}
+</td>
+</tr>
+</table>
+
 {% endfor %}
 
 {% endif %}

@@ -8,7 +8,10 @@
 {% if samples|length > 0 %}
 
 {% for sample in samples %}
-<p>{{sample}}</p>
+
+{% include '_sample.html' %}
+
+
 {% endfor %}
 
 {% endif %}

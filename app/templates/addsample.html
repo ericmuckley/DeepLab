@@ -1,14 +1,64 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block app_content %}
-    <h1> {{title}} </h1>
+    <h1>Create a new sample</h1>
 
-<p>Add samples</p/>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(cols=32, rows=1, placeholder='sample_name') }}<br>
+            {% for error in form.name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.fab_date.label }}<br>
+            {{ form.fab_date(cols=10, rows=1, placeholder='2019-08-13') }}<br>
+            {% for error in form.fab_date.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.composition.label }}<br>
+            {{ form.composition(cols=32, rows=1, placeholder='') }}<br>
+            {% for error in form.composition.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.fab_method.label }}<br>
+            {{ form.fab_method(cols=32, rows=1, placeholder='') }}<br>
+            {% for error in form.fab_method.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.notes.label }}<br>
+            {{ form.notes(cols=32, rows=1, placeholder='') }}<br>
+            {% for error in form.notes.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.experiments.label }}<br>
+            {{ form.experiments(cols=32, rows=1, placeholder='') }}<br>
+            {% for error in form.experiments.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.ispublic.label }}<br>
+            {{ form.ispublic() }}<br>
+            {% for error in form.ispublic.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
 
 
 
-
-
+        <p>{{ form.submit() }}</p>
+    </form>
 
 
 {% endblock %}

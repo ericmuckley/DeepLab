@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
 
 {% block app_content %}
-    <h1> {{title}} </h1>
 
-<p>Deeplab simplifies the tracking and analysis of scientific data.</p>
+<h1> {{title}} </h1>
 
-<h3>Quickstart - Analyze</h3>
-<p>To analyze data stored in a <i>.csv</i> file, first 
-<a href="{{ url_for('index') }}">upload</a> your data.</p>
+<br>
+<p>Deeplab simplifies the tracking and analysis of 
+scientific data and samples.</p>
+
+
+<h3>Sample tracking</h3>
+Use the top menu to add a sample. Then add experiments to that sample
+to track its status. You can also monitor the status of public samples
+ submitted by other users.
+
+
+<h3>Data analytics</h3>
+Data can be analyzed inside the web application by
+<a href="{{ url_for('upload') }}">uploading</a> your data 
+as a <i>.csv</i> file.</p>
 
 
 {% endblock %}

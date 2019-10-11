@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <h1> {{ title }} </h1>
+
+
+<table>
+<tr>
+<td width='160'><b>Sample name:</b></td>
+<td>{{ sample.name }}</td>
+</tr>
+<tr>
+<td><b>Fabrication date:</b></td>
+<td>{{ sample.fab_date }}</td>
+</tr>
+<tr>
+<td><b>Composition:</b></td>
+<td>{{ sample.composition }}</td>
+</tr>
+<tr>
+<td><b>Fabrication method:</b></td>
+<td>{{ sample.fab_method }}</td>
+</tr>
+<tr>
+<td><b>Notes:</b></td>
+<td>{{ sample.notes }}</td>
+</tr>
+<tr>
+<td><b>Experiments:</b></td>
+<td>{{ sample.experiments }}</td>
+</tr>
+<tr>
+<td><b>Publically viewable:</b></td>
+<td>{{ sample.ispublic }}</td>
+</tr>
+</table>
+
+
+
+<p> Sample <b> {{ sample.name }} </b> was created on 
+<b>{{ sample.fab_date }}</b> by 
+<b>{{ sample.author.username }}</b>.
+
+{{ sample.fab_method }}
+
+{% if sample.author == current_user %}
+EDIT SAMPLE
+
+{% else %}
+NOT YOUR SAMPLE
+{% endif %}
+
+
+{% endblock %}

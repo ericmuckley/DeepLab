@@ -1,5 +1,13 @@
-   <table>
-        <tr valign="top">
-            <td>{{ sample.author.username }} created:<br>{{ sample.name }}</td>
-        </tr>
-    </table>
+
+<hr>
+<td width="150px">
+
+<a href="{{ url_for('sample', name=sample.name) }}">
+<b>{{ sample.name }}</b></a> was created by 
+
+<a href="{{ url_for('user', username=sample.author.username) }}">
+<b>{{ sample.author.username }}</b></a> 
+on on {{ sample.fab_date }}
+
+
+</td>
