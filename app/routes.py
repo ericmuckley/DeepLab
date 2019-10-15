@@ -1,6 +1,6 @@
 from app import app
 from app import db
-from app import corrspec2d
+from app import corrspec, app_methods as am
 from flask import render_template, flash, redirect, request, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
@@ -9,9 +9,18 @@ from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Le
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Sample
 from werkzeug.urls import url_parse
+from bokeh.embed import components
+
+from bokeh.io import output_file, show
+from bokeh.models import BasicTicker, ColorBar, ColumnDataSource, LinearColorMapper, PrintfTickFormatter
+from bokeh.plotting import figure
+from bokeh.sampledata.unemployment1948 import data
+from bokeh.transform import transform
+
 
 
 from datetime import datetime
+import pandas as pd
 
 @app.before_request
 def before_request():
@@ -153,9 +162,13 @@ def analyze():
 
 
 
+@app.route('/corrspec')
+def corrspec():
+    return render_template('corrspec.html', script1='', div1='',
+        title='Two-dimensional correlation spectroscopy')
 
-@app.route('/upload_2dcorrspec', methods=['GET', 'POST'])
-def upload_2dcorrspec():
+@app.route('/upload_corrspec', methods=['GET', 'POST'])
+def upload_corrspec():
     '''Page for uploading CSV files for 2D correlation spectroscopy.
     If the "Choose file" or "Upload"
     buttons are clicked on the HTML page, then 'request.method == 'POST'
@@ -167,27 +180,37 @@ def upload_2dcorrspec():
 
     if request.method == 'POST':
         try:
-            df1 = pd.read_csv(request.files.get('file1'))
+            file1 = request.files.get('file1')
+            upload_info['file1'] = file1
+            df1 = pd.read_csv(file1)
+            
+            '''
             if request.files.get('file2') == None:
                 pass
-            sy, asy, mean_df = corrspec2d(df1)
-
-
-            script, div = components(p)
+            sy, asy, mean_df = corrspec(df1)
+            '''
+            print(df1)
+            p = am.multiline_plot(df1, title=str(file1),
+								xlabel='Point', ylabel='Values')
+            #p = HeatMap(df1, title='My heatmap')
+            print(p)
+            script1, div1 = components(p)
+            print(script1, div1)
+            #script, div = '', ''
             #session['df'] = df
             # render the new uploaded_csv page which plots the CSV data
-            return render_template('uploadedcsv.html',
-                              title='CSV file successfully uploaded',
-                         upload_info=upload_info, script=script, div=div)
+            return render_template('corrspec.html',
+                              title='Data successfully uploaded',
+                         upload_info=upload_info, script1=script1, div1=div1)
 
         # if there is an error with the CSV file, return to the upload page
         except:
             upload_info['message'] = 'Upload failed. Please choose valid CSV files and try again.'
-            render_template('upload_2dcorrspec.html', upload_info=upload_info,
-                             title='Upload files for 2D correlation spectroscopy')
+            render_template('upload_corrspec.html', upload_info=upload_info,
+                            title='Upload files for 2D correlation spectroscopy')
 
 
-    return render_template('upload_2dcorrspec.html',
+    return render_template('upload_corrspec.html',
                           title='Upload files for 2D correlation spectroscopy',
                            upload_info=upload_info)
 
