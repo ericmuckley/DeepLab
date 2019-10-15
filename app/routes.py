@@ -1,5 +1,6 @@
 from app import app
 from app import db
+from app import corrspec2d
 from flask import render_template, flash, redirect, request, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
@@ -39,9 +40,20 @@ class SampleForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+class ExperimentForm(FlaskForm):
+    # form for creating new experiments
+    exp_date = TextAreaField('Experiment date (YYYY-MM-DD) (required)',
+            validators=[DataRequired(), Length(min=0, max=10)])
+    experiment = TextAreaField('Experiment (required)',
+            validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')
+
+
 class EditProfileForm(FlaskForm):
+    # form for editing the user profile
     username = StringField('Username', validators=[DataRequired()])
-    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    about_me = TextAreaField('Information to display publicly',
+                validators=[Length(min=0, max=140)])
     submit = SubmitField('Submit')
 
     def __init__(self, original_username, *args, **kwargs):
@@ -82,6 +94,42 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 
+'''
+@app.route('/edit_sample', methods=['GET', 'POST'])
+@login_required
+def edit_sample():
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile',
+                           form=form)
+'''
+
+
+
+@app.route('/sample/<name>/add_experiment', methods=['GET', 'POST'])
+@login_required
+def add_experiment(name):
+    form = ExperimentForm()
+    sample = Sample.query.filter_by(name=name).first_or_404()
+    if form.validate_on_submit():
+        sample.experiment[str(form.exp_date.data)] = form.experiment.data
+        db.session.commit()
+        flash('Your experiment has been added.')
+        return redirect(url_for('sample/<name>'))
+    return render_template("samples.html", title='Add experiment',
+        form=form)
+
+
+
+
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -99,9 +147,59 @@ def edit_profile():
                            form=form)
 
 
-@app.route('/upload')
-def upload():
-    return render_template('upload.html', title='Upload CSV file')
+@app.route('/analyze')
+def analyze():
+    return render_template('analyze.html', title='Data analysis')
+
+
+
+
+@app.route('/upload_2dcorrspec', methods=['GET', 'POST'])
+def upload_2dcorrspec():
+    '''Page for uploading CSV files for 2D correlation spectroscopy.
+    If the "Choose file" or "Upload"
+    buttons are clicked on the HTML page, then 'request.method == 'POST'
+    will run. This will check whether there is a valid CSV file uploaded
+    and either plot it, or return an error message on the upload page.'''
+    # default message for user trying to upload CSV file
+    upload_info = {'message': ''}
+    # if the upload form is submitted, try to read the CSV file
+
+    if request.method == 'POST':
+        try:
+            df1 = pd.read_csv(request.files.get('file1'))
+            if request.files.get('file2') == None:
+                pass
+            sy, asy, mean_df = corrspec2d(df1)
+
+
+            script, div = components(p)
+            #session['df'] = df
+            # render the new uploaded_csv page which plots the CSV data
+            return render_template('uploadedcsv.html',
+                              title='CSV file successfully uploaded',
+                         upload_info=upload_info, script=script, div=div)
+
+        # if there is an error with the CSV file, return to the upload page
+        except:
+            upload_info['message'] = 'Upload failed. Please choose valid CSV files and try again.'
+            render_template('upload_2dcorrspec.html', upload_info=upload_info,
+                             title='Upload files for 2D correlation spectroscopy')
+
+
+    return render_template('upload_2dcorrspec.html',
+                          title='Upload files for 2D correlation spectroscopy',
+                           upload_info=upload_info)
+
+
+
+
+
+
+
+
+
+
 
 
 

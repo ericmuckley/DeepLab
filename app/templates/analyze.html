@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <h1> {{ title }} </h1>
+
+<ul>
+<li><a href="{{ url_for('upload_2dcorrspec') }}">Two-dimensional correlation spectroscopy</a></li>
+<li>Other analysis options are currently under construction</li>
+</ul>
+
+{% endblock %}
+

@@ -3,11 +3,14 @@
 {% block app_content %}
     <h1> {{ title }} </h1>
 
-
 <table>
 <tr>
 <td width='160'><b>Sample name:</b></td>
 <td>{{ sample.name }}</td>
+</tr>
+<tr>
+<td width='160'><b>Sample creator:</b></td>
+<td><b><a href="{{ url_for('user', username=sample.author) }}"> {{ sample.author.username }}</b></a></td>
 </tr>
 <tr>
 <td><b>Fabrication date:</b></td>
@@ -34,21 +37,17 @@
 <td>{{ sample.ispublic }}</td>
 </tr>
 </table>
+<br><br>
 
 
-
-<p> Sample <b> {{ sample.name }} </b> was created on 
-<b>{{ sample.fab_date }}</b> by 
-<b>{{ sample.author.username }}</b>.
-
-{{ sample.fab_method }}
-
+{#
 {% if sample.author == current_user %}
-EDIT SAMPLE
+<p><a href="{{ url_for('add_experiment') }}">Add an experiment to this sample</a></p>
 
 {% else %}
-NOT YOUR SAMPLE
+<p>Contact <a href="{{ url_for('user', username=sample.user_id.username) }}"> {{ sample.author.username }}
+</a>for more information about this sample.</p>
 {% endif %}
-
+#}
 
 {% endblock %}
